@@ -2,7 +2,7 @@ import tweepy
 from tweepy import OAuthHandler
 
 from francomisp.keys import twitter_consumer_key, twitter_consumer_secret, twitter_access_secret, twitter_access_token
-
+from francomisp.utils.tweet_content import TweetContent
 
 class TwitterBot:
 
@@ -19,15 +19,12 @@ class TwitterBot:
             Query = ListId.name
             for page in range(1, 3):
                 if page == 1:
-                    tweets = api.search(q=Query, rpp=100)
+                    tweets = api.search(q=Query, rpp=100,tweet_mode='extended')
                 else:
-                    tweets = api.search(q=Query, rpp=100, max_id=max_id)
+                    tweets = api.search(q=Query, rpp=100, max_id=max_id,tweet_mode = 'extended')
                 for tweet in tweets:
                     yield tweet
 
     @staticmethod
-    def extract_url(tweet):
-        url_by_id = {'urls': [ url['expanded_url'] for url in tweet.entities['urls']], 'Tweet': tweet}
-
-        if url_by_id:
-            return url_by_id
+    def extract_url(tweet, twitter_content):
+        return [ twitter_content.url_rewrite(url['expanded_url']) for url in tweet.entities['urls']]
