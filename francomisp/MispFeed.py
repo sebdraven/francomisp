@@ -53,7 +53,7 @@ def main():
     tweet_content = TweetContent()
     misp_import = MispImport()
     for tweet in TwitterBot.search():
-        data_by_id[tweet.id] = {'tweet': tweet,'urls_pasties':TwitterBot.extract_url(tweet, tweet_content)}
+        data_by_id[tweet.id] = {'tweet': tweet,'urls_pasties':TwitterBot.extract_url(tweet, tweet_content),'retweet': False}
 
     data_to_push = {}
 
@@ -62,9 +62,9 @@ def main():
             text_tweet = data['tweet'].full_text
             if hasattr(data['tweet'], 'retweeted_status'):
                 text_tweet = data['tweet'].retweeted_status.full_text
-
+                data['retweet'] = True
             data_to_push[id] = {'tweet_text': text_tweet,'data':[], 'urls':  [url['expanded_url'] for url in data['tweet'].entities['urls']]
-                                ,'url_tweet': 'https://twitter.com/%s/status/%s'% (data['tweet'].user.screen_name,id)}
+                                ,'url_tweet': 'https://twitter.com/%s/status/%s'% (data['tweet'].user.screen_name,id),'retweet': data['retweet']}
 
         for url in data['urls_pasties']:
             if url:
