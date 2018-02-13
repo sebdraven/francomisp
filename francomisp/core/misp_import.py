@@ -15,33 +15,33 @@ class MispImport:
         for k, data in data_to_push.items():
 
             if not self.is_already_present(data['url_tweet']):
-                if not self.is_already_present(data['tweet_text']):
-                    event = self.api.new_event(distribution=0, info=data['url_tweet'], analysis=0, threat_level_id=1)
-                    self.api.add_named_attribute(event=event,type_value='url', category='External analysis',
-                                                 value=data['url_tweet'])
-                    self.api.add_named_attribute(event=event, type_value='text', category='External analysis',
-                                        value=data['tweet_text'])
-                    self.api.add_named_attribute(event=event, type_value="twitter-id", category="Social network",
-                                        value=k)
 
-                    for url in data['urls']:
-                        self.api.add_named_attribute(event=event, type_value='url', category="External analysis", value=url)
+                event = self.api.new_event(distribution=0, info=data['url_tweet'], analysis=0, threat_level_id=1)
+                self.api.add_named_attribute(event=event,type_value='url', category='External analysis',
+                                             value=data['url_tweet'])
+                self.api.add_named_attribute(event=event, type_value='text', category='External analysis',
+                                    value=data['tweet_text'])
+                self.api.add_named_attribute(event=event, type_value="twitter-id", category="Social network",
+                                    value=k)
 
-                    self.api.freetext(event_id=event['Event']['id'], string=data['tweet_text'], adhereToWarninglists=True)
-                    for d in data['data']:
+                for url in data['urls']:
+                    self.api.add_named_attribute(event=event, type_value='url', category="External analysis", value=url)
 
-                        if 'magic' in d.state_machine and d.state_machine['magic']['pe']:
-                            hash_algo = sha256()
-                            hash_algo.update(d.content_decoded)
-                            self.api.add_named_attribute(event=event, type_value='sha256', category='Payload delivery',
-                                                         value=hash_algo.hexdigest())
-                            self.add_object(event,d.content_decoded,hash_algo.hexdigest())
-                        elif 'magic' in d.state_machine and d.state_machine['magic']['elf']:
-                            self.api.add_object(event['Event']['id'], 13, d.content_decoded)
-                        else:
-                            self.api.freetext(event_id=event['Event']['id'], string=d.content_decoded.decode(),adhereToWarninglists=True)
-                            self.api.add_named_attribute(event=event, type_value='text', category='External analysis',
-                                                         value=d.content_decoded.decode())
+                self.api.freetext(event_id=event['Event']['id'], string=data['tweet_text'], adhereToWarninglists=True)
+                for d in data['data']:
+
+                    if 'magic' in d.state_machine and d.state_machine['magic']['pe']:
+                        hash_algo = sha256()
+                        hash_algo.update(d.content_decoded)
+                        self.api.add_named_attribute(event=event, type_value='sha256', category='Payload delivery',
+                                                     value=hash_algo.hexdigest())
+                        self.add_object(event,d.content_decoded,hash_algo.hexdigest())
+                    elif 'magic' in d.state_machine and d.state_machine['magic']['elf']:
+                        self.api.add_object(event['Event']['id'], 13, d.content_decoded)
+                    else:
+                        self.api.freetext(event_id=event['Event']['id'], string=d.content_decoded.decode(),adhereToWarninglists=True)
+                        self.api.add_named_attribute(event=event, type_value='text', category='External analysis',
+                                                     value=d.content_decoded.decode())
 
     def is_already_present(self, url_tweet):
         response = self.api.search(values=[url_tweet])
