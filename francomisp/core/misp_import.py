@@ -58,4 +58,5 @@ class MispImport:
 
     def add_tags(self,event):
         #self.api.add_tag(event,'OSINT')
-        self.api.tag(event['Event']['uuid'],'OSINT')
+        self.api.tag(event['Event']['uuid'], 'OSINT')
+        self.api.tag(event['Event']['uuid'], 'tlp:white')
