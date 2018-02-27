@@ -25,7 +25,7 @@ def main():
             data_to_push[id] = {'tweet_text': text_tweet, 'data': [],
                                 'urls': [url['expanded_url'] for url in data['tweet'].entities['urls']]
                 , 'url_tweet': 'https://twitter.com/%s/status/%s' % (data['tweet'].user.screen_name, id),
-                                'retweet': data['retweet']}
+                                'retweet': data['retweet'],'tags': [ h['text'] for h in data['tweet'].entities['hashtags']]}
 
         for url in data['urls_pasties']:
             if url:

@@ -18,7 +18,7 @@ class MispImport:
 
                 event = self.api.new_event(distribution=0, info=data['url_tweet'], analysis=0, threat_level_id=1)
                 if event:
-                    self.add_tags(event)
+                    self.add_tags(event, data['tags'])
 
                     self.api.add_named_attribute(event=event,type_value='url', category='External analysis',
                                                  value=data['url_tweet'])
@@ -38,13 +38,17 @@ class MispImport:
                             hash_algo.update(d.content_decoded)
                             self.api.add_named_attribute(event=event, type_value='sha256', category='Payload delivery',
                                                          value=hash_algo.hexdigest())
-                            self.add_object(event,d.content_decoded,hash_algo.hexdigest())
+                            self.add_object(event, d.content_decoded, hash_algo.hexdigest())
                         elif 'magic' in d.state_machine and d.state_machine['magic']['elf']:
                             self.api.add_object(event['Event']['id'], 13, d.content_decoded)
                         else:
-                            self.api.freetext(event_id=event['Event']['id'], string=d.content_decoded.decode(),adhereToWarninglists=True)
-                            self.api.add_named_attribute(event=event, type_value='text', category='External analysis',
+                            try:
+                                self.api.freetext(event_id=event['Event']['id'], string=d.content_decoded.decode(),adhereToWarninglists=True)
+                                self.api.add_named_attribute(event=event, type_value='text', category='External analysis',
                                                          value=d.content_decoded.decode())
+                            except UnicodeDecodeError:
+                                print('Error decoding')
+                                pass
 
     def is_already_present(self, url_tweet):
         response = self.api.search(values=[url_tweet])
@@ -56,7 +60,9 @@ class MispImport:
         if obj[1]:
             self.api.add_object(event['Event']['id'], 28, obj[1])
 
-    def add_tags(self,event):
+    def add_tags(self,event, tags):
         #self.api.add_tag(event,'OSINT')
+        for t in tags:
+            self.api.tag(event['Event']['uuid'],t)
         self.api.tag(event['Event']['uuid'], 'OSINT')
         self.api.tag(event['Event']['uuid'], 'tlp:white')
