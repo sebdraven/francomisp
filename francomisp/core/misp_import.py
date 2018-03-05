@@ -20,7 +20,7 @@ class MispImport:
                 if event:
                     self.add_tags(event, data['tags'])
 
-                    self.api.add_named_attribute(event=event,type_value='url', category='External analysis',
+                    self.api.add_named_attribute(event=event, type_value='url', category='External analysis',
                                                  value=data['url_tweet'])
                     self.api.add_named_attribute(event=event, type_value='text', category='External analysis',
                                         value=data['tweet_text'])
@@ -39,6 +39,7 @@ class MispImport:
                             self.api.add_named_attribute(event=event, type_value='sha256', category='Payload delivery',
                                                          value=hash_algo.hexdigest())
                             self.add_object(event, d.content_decoded, hash_algo.hexdigest())
+                            self.add_tags(event,['Malware'])
                         elif 'magic' in d.state_machine and d.state_machine['magic']['elf']:
                             self.api.add_object(event['Event']['id'], 13, d.content_decoded)
                         else:
