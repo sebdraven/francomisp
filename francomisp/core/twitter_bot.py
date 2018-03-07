@@ -27,4 +27,8 @@ class TwitterBot:
 
     @staticmethod
     def extract_url(tweet, twitter_content):
-        return [ twitter_content.url_rewrite(url['expanded_url']) for url in tweet.entities['urls']]
+        urls_pasties = [ twitter_content.url_rewrite(url['expanded_url']) for url in tweet.entities['urls']]
+        if hasattr(tweet, 'retweeted_status'):
+            urls_pasties.extend([ url['expanded_url']for url in  tweet.retweeted_status.entities['urls']])
+        return urls_pasties
+
