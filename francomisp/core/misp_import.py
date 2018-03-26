@@ -1,6 +1,7 @@
 from hashlib import sha256
 from io import BytesIO
 
+import requests
 from pymisp import PyMISP
 
 from francomisp.keys import misp_url, misp_key, misp_verifycert
@@ -51,12 +52,14 @@ class MispImport:
                                 print('Error decoding')
                                 pass
 
+                self.__remove_shortcut(event)
+
     def is_already_present(self, url_tweet):
         response = self.api.search(values=[url_tweet])
         self.response = response
         return bool(response['response'])
 
-    def add_object(self,event,data,filename):
+    def add_object(self,event, data, filename):
         obj = make_binary_objects(pseudofile=BytesIO(data), filename=filename)
         if obj[1]:
             self.api.add_object(event['Event']['id'], 28, obj[1])
@@ -67,3 +70,15 @@ class MispImport:
             self.api.tag(event['Event']['uuid'],t)
         self.api.tag(event['Event']['uuid'], 'OSINT')
         self.api.tag(event['Event']['uuid'], 'tlp:white')
+
+    def __remove_shortcut(self, event):
+        attrs = [attr for attr in event['Event']['Attribute'] if
+                 attr['category'] == 'Network activity' and 'https://t.co' in attr['value']]
+
+        for attr in attrs:
+            r = requests.get(attr['value'].replace("'", ""))
+            if r.status_code == 200:
+                self.api.add_named_attribute(event=event, type_value='url', category='External analysis',
+                                        value=r.url)
+
+                self.api.delete_attribute(attr['id'])
