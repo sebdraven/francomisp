@@ -2,6 +2,8 @@
 import sys
 import logging
 
+import os
+
 from francomisp.core.misp_import import MispImport
 from francomisp.core.twitter_bot import TwitterBot
 from francomisp.utils.decode_pasties import DecodePasties
@@ -11,7 +13,7 @@ def create_logger():
     logger = logging.getLogger('FrancoMisp')
     logger.setLevel(logging.DEBUG)
 
-    hLogger = logging.FileHandler('francomisp.log')
+    hLogger = logging.FileHandler(os.path.join(os.path.dirname(__file__),   'francomisp.log'))
     hLogger.setLevel(logging.DEBUG)
 
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
