@@ -1,19 +1,42 @@
 #!/usr/bin/python3
 import sys
+import logging
 
 from francomisp.core.misp_import import MispImport
 from francomisp.core.twitter_bot import TwitterBot
 from francomisp.utils.decode_pasties import DecodePasties
 from francomisp.utils.tweet_content import TweetContent
 
+def create_logger():
+    logger = logging.getLogger('FrancoMisp')
+    logger.setLevel(logging.DEBUG)
+
+    hLogger = logger.FileHandler('francomisp.log')
+    hLogger.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    hLogger.setFormater(formatter)
+    logger.addHandler(hLogger)
+    return logger
+
 
 def main():
+
     data_by_id = {}
     tweet_content = TweetContent()
-    misp_import = MispImport()
+
+    logger = create_logger()
+
+    misp_import = MispImport(logger)
+
+    logger.debug('Process is started')
+
     for tweet in TwitterBot.search():
         data_by_id[tweet.id] = {'tweet': tweet, 'urls_pasties': TwitterBot.extract_url(tweet, tweet_content),
                                 'retweet': False}
+
+    logger.debug('Twitter searches are finished ')
 
     data_to_push = {}
 
@@ -27,14 +50,17 @@ def main():
                                 'urls': [url['expanded_url'] for url in data['tweet'].entities['urls']]
                 , 'url_tweet': 'https://twitter.com/%s/status/%s' % (data['tweet'].user.screen_name, id),
                                 'retweet': data['retweet'],'tags': [ h['text'] for h in data['tweet'].entities['hashtags']]}
-
+        logger.info('Start to download data on pastebin')
         for url in data['urls_pasties']:
             if url:
                 decode_pastie = DecodePasties()
                 decode_pastie.retrieve_pasties(url)
                 decode_pastie.decode()
                 data_to_push[id]['data'].append(decode_pastie)
-    misp_import.import_data(data_to_push)
+    logger.info('Import data in MISP')
+    all_events = misp_import.import_data(data_to_push)
+    logger.info('All Events are created %s' % all_events)
+
 
 def push_one_event(url):
     tweet_content = TweetContent()
