@@ -11,12 +11,12 @@ def create_logger():
     logger = logging.getLogger('FrancoMisp')
     logger.setLevel(logging.DEBUG)
 
-    hLogger = logger.FileHandler('francomisp.log')
+    hLogger = logging.FileHandler('francomisp.log')
     hLogger.setLevel(logging.DEBUG)
 
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    hLogger.setFormater(formatter)
+    hLogger.setFormatter(formatter)
     logger.addHandler(hLogger)
     return logger
 
@@ -98,7 +98,7 @@ def push_one_event(url):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 0:
+    if len(sys.argv) > 1:
         url = sys.argv[1]
         push_one_event(url)
     else:
