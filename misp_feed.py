@@ -66,7 +66,8 @@ def main():
 
 def push_one_event(url):
     tweet_content = TweetContent()
-    misp_import = MispImport()
+    logger = create_logger()
+    misp_import = MispImport(logger)
     data_by_id ={}
     id_tweet = url.split('/')[-1:][0]
     tweet = TwitterBot.publish_on_tweet(id_tweet)
@@ -96,7 +97,8 @@ def push_one_event(url):
                 decode_pastie.retrieve_pasties(url)
                 decode_pastie.decode()
                 data_to_push[id]['data'].append(decode_pastie)
-    misp_import.import_data(data_to_push)
+    all_events = misp_import.import_data(data_to_push)
+    logger.info('All Events are created %s' % all_events)
 
 
 if __name__ == '__main__':
