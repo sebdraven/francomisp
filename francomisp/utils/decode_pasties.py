@@ -12,8 +12,8 @@ class DecodePasties:
             self.content_decoded = None
             self.regex_binary = re.compile(b'[0-1]*')
             self.state_machine = {}
-            self.url_scrap_pastie = 'https://pastebin.com/api_scrape_item.php?i='
-            self.url_scrap_meta = 'https://pastebin.com/api_scrape_item_meta.php?i='
+            self.url_scrap_pastie = 'https://pastebin.com/api_scrape_item.php?i=%s'
+            self.url_scrap_meta = 'https://pastebin.com/api_scrape_item_meta.php?i=%s'
 
     def __decode_base64(self):
         try:
