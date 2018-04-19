@@ -36,6 +36,7 @@ class MispImport:
                             self.caching.caching(data['retweet_id'], event['Event']['id'])
 
                     if event:
+                        self.logger.debug(event)
                         self.api.add_named_attribute(event=event, type_value='url', category='External analysis', value=data['url_tweet'])
                         self.api.add_named_attribute(event=event, type_value="twitter-id", category="Social network",
                                                  value=k)
