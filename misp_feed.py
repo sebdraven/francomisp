@@ -36,7 +36,7 @@ def main():
 
     for tweet in TwitterBot.search():
         data_by_id[tweet.id] = {'tweet': tweet, 'urls_pasties': TwitterBot.extract_url(tweet, tweet_content),
-                                'retweet': False, 'retweet_id': 0,'quoted_tweet':False,'quoted_status_id': 0}
+                                'retweet': False, 'retweet_id': 0, 'quoted_tweet': False, 'quoted_status_id': 0}
 
     logger.debug('Twitter searches are finished ')
 

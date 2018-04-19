@@ -35,13 +35,15 @@ class MispImport:
                             event = res['response'][0]
                             self.caching.caching(data['retweet_id'], event['Event']['id'])
 
-                    self.api.add_named_attribute(event=event, type_value='url', category='External analysis',
-                                                 value=data['url_tweet'])
-                    self.api.add_named_attribute(event=event, type_value="twitter-id", category="Social network",
+                    if event:
+                        self.api.add_named_attribute(event=event, type_value='url', category='External analysis', value=data['url_tweet'])
+                        self.api.add_named_attribute(event=event, type_value="twitter-id", category="Social network",
                                                  value=k)
-                    all_tags = [t['name'] for t in event['Event']['Tag']]
-                    if not 'toqualify' in all_tags:
-                        self.api.tag(event['Event']['uuid'], 'topubish')
+                        all_tags = [t['name'] for t in event['Event']['Tag']]
+                        if not 'toqualify' in all_tags:
+                            self.api.tag(event['Event']['uuid'], 'topubish')
+                    else:
+                        self.logger.error('Event not found tweet %s ' % data['retweet_id'])
                     continue
 
                 elif data['quoted_tweet']:
@@ -115,6 +117,7 @@ class MispImport:
             return bool(response['response'])
         except:
             self.logger.error('Error search %s ' % url_tweet)
+            return True
 
     def add_object(self, event, data, filename):
         obj = make_binary_objects(pseudofile=BytesIO(data), filename=filename)
