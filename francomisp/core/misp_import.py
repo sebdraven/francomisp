@@ -109,9 +109,12 @@ class MispImport:
 
 
     def is_already_present(self, url_tweet):
-        response = self.api.search(values=[url_tweet])
-        self.response = response
-        return bool(response['response'])
+        try:
+            response = self.api.search(values=[url_tweet])
+            self.response = response
+            return bool(response['response'])
+        except:
+            self.logger.error('Error search %s ' % url_tweet)
 
     def add_object(self, event, data, filename):
         obj = make_binary_objects(pseudofile=BytesIO(data), filename=filename)
