@@ -42,7 +42,7 @@ class MispImport:
                                                  value=k)
                         all_tags = [t['name'] for t in event['Event']['Tag']]
                         if not 'toqualify' in all_tags:
-                            self.api.tag(event['Event']['uuid'], 'topubish')
+                            self.api.tag(event['Event']['uuid'], 'topublish')
                     else:
                         self.logger.error('Event not found tweet %s ' % data['retweet_id'])
                     continue
