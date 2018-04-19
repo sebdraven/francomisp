@@ -36,11 +36,12 @@ def main():
 
     for tweet in TwitterBot.search():
         data_by_id[tweet.id] = {'tweet': tweet, 'urls_pasties': TwitterBot.extract_url(tweet, tweet_content),
-                                'retweet': False}
+                                'retweet': False, 'retweet_id': 0,'quoted_tweet':False,'quoted_status_id': 0}
 
     logger.debug('Twitter searches are finished ')
 
     data_to_push = {}
+    data_to_aggregate = {}
 
     for id, data in data_by_id.items():
         if not id in data_to_push:
@@ -48,10 +49,18 @@ def main():
             if hasattr(data['tweet'], 'retweeted_status'):
                 text_tweet = data['tweet'].retweeted_status.full_text
                 data['retweet'] = True
+                data['retweet_id'] = data['tweet'].retweeted_status.id
+
+            if hasattr(data['tweet'], 'quoted_status'):
+                data['quoted_tweet'] = True
+                data['quoted_status_id'] = data['tweet'].quoted_status['id']
+
             data_to_push[id] = {'tweet_text': text_tweet, 'data': [],
-                                'urls': [url['expanded_url'] for url in data['tweet'].entities['urls']]
-                , 'url_tweet': 'https://twitter.com/%s/status/%s' % (data['tweet'].user.screen_name, id),
-                                'retweet': data['retweet'],'tags': [ h['text'] for h in data['tweet'].entities['hashtags']]}
+                                'urls': [url['expanded_url'] for url in data['tweet'].entities['urls']],
+                                'url_tweet': 'https://twitter.com/%s/status/%s' % (data['tweet'].user.screen_name, id),
+                                'retweet': data['retweet'],'retweet_id':data['retweet_id'],'quoted_tweet': data['quoted_tweet'],
+                                'quoted_status_id':data['quoted_status_id'], 'tags': [h['text'] for h in data['tweet'].entities['hashtags']]}
+
         logger.info('Start to download data on pastebin')
         for url in data['urls_pasties']:
             if url:

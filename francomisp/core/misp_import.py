@@ -4,14 +4,18 @@ from io import BytesIO
 import requests
 from pymisp import PyMISP
 
+from francomisp.core.caching import Caching
 from francomisp.keys import misp_url, misp_key, misp_verifycert
 from pymisp.tools import make_binary_objects
+
+
 class MispImport:
 
     def __init__(self, logger):
         self.api = PyMISP(misp_url, misp_key, misp_verifycert, 'json', debug=False)
         self.response = None
         self.logger = logger
+        self.caching = Caching()
 
     def import_data(self, data_to_push):
         all_events = []
@@ -19,12 +23,45 @@ class MispImport:
 
             if not self.is_already_present(data['url_tweet']):
 
-                event = self.api.new_event(distribution=0, info=data['url_tweet'], analysis=0, threat_level_id=1)
+                if data['retweet']:
+
+                    eid = self.caching.translate(data['retweet_id'])
+
+                    if eid:
+                        event = self.api.get(eid)
+                    else:
+                        res = self.api.search(values=data['retweet_id'])
+                        if res['response']:
+                            event = res[0]
+                            self.caching.caching(data['retweet_id'], event['Event']['id'])
+
+                    self.api.add_named_attribute(event=event, type_value='url', category='External analysis',
+                                                 value=data['url_tweet'])
+                    self.api.add_named_attribute(event=event, type_value="twitter-id", category="Social network",
+                                                 value=k)
+                    self.api.tag(event['Event']['uuid'], 'topubish')
+                    continue
+
+                elif data['quoted_tweet']:
+                    eid = self.caching.translate(data['quoted_status_id'])
+                    if eid:
+                        event = self.api.get(eid)
+                    else:
+                        res = self.api.search(values=data['quoted_status_id'])
+                        if res['response']:
+                            event = res['response'][0]
+                            self.caching.caching(data['quoted_status_id'], event['Event']['id'])
+                else:
+                    event = self.api.new_event(distribution=0, info=data['url_tweet'], analysis=0, threat_level_id=1)
+                    self.caching.caching(k, event['Event']['id'])
+
 
                 self.logger.info('Event create %s' % event['Event']['id'])
 
                 if event:
                     self.add_tags(event, data['tags'])
+
+
 
                     self.api.add_named_attribute(event=event, type_value='url', category='External analysis',
                                                  value=data['url_tweet'])
@@ -37,6 +74,7 @@ class MispImport:
                     for url in data['urls']:
                         self.api.add_named_attribute(event=event, type_value='url', category="External analysis", value=url)
                         self.logger.info('add externals url %s to %s' % (url, event['Event']['id']))
+
                     self.api.freetext(event_id=event['Event']['id'], string=data['tweet_text'], adhereToWarninglists=True)
                     self.logger.debug('add text %s to %s' % (data['tweet_text'], event['Event']['id']))
 
@@ -66,6 +104,7 @@ class MispImport:
                 self.__remove_shortcut(event)
                 all_events.append(event['Event']['id'])
         return all_events
+
 
     def is_already_present(self, url_tweet):
         response = self.api.search(values=[url_tweet])
