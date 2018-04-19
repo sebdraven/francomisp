@@ -32,14 +32,16 @@ class MispImport:
                     else:
                         res = self.api.search(values=data['retweet_id'])
                         if res['response']:
-                            event = res[0]
+                            event = res['response'][0]
                             self.caching.caching(data['retweet_id'], event['Event']['id'])
 
                     self.api.add_named_attribute(event=event, type_value='url', category='External analysis',
                                                  value=data['url_tweet'])
                     self.api.add_named_attribute(event=event, type_value="twitter-id", category="Social network",
                                                  value=k)
-                    self.api.tag(event['Event']['uuid'], 'topubish')
+                    all_tags = [t['name'] for t in event['Event']['Tag']]
+                    if not 'toqualify' in all_tags:
+                        self.api.tag(event['Event']['uuid'], 'topubish')
                     continue
 
                 elif data['quoted_tweet']:
