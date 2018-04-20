@@ -26,7 +26,7 @@ class MispImport:
                 if data['retweet']:
                     self.logger.info('RT %s ' % data['retweet_id'] )
                     eid = self.caching.translate(data['retweet_id'])
-
+                    self.logger.info('translate found %s' % eid)
                     if eid:
                         event = self.api.get(eid)
                     else:
