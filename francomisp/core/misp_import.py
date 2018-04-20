@@ -48,7 +48,7 @@ class MispImport:
                         if not 'toqualify' in all_tags:
                             self.api.tag(event['Event']['uuid'], 'topublish')
                     else:
-                        self.logger.error('Event not found tweet %s ' % data['retweet_id'])
+                        self.logger.error('Event not found tweet %s error decode %s' % (data['retweet_id'],event))
                     continue
 
                 elif data['quoted_tweet']:
