@@ -60,8 +60,10 @@ class MispImport:
                             if 'Event' in event:
                                 self.caching.caching(data['quoted_status_id'], event['Event']['id'])
                             else:
-                                self.logger.error('Event not found tweet %s ' % data['retweet_id'])
+                                self.logger.error('Event not found tweet %s ' % data['quoted_status_id'])
                                 continue
+                        else:
+                            self.logger.error('Quoted Tweet not found %s' % data['url_tweet'])
                 else:
                     event = self.api.new_event(distribution=0, info=data['url_tweet'], analysis=0, threat_level_id=1)
                     self.caching.caching(k, event['Event']['id'])
