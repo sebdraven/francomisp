@@ -28,7 +28,7 @@ class MispImport:
                     eid = self.caching.translate(data['retweet_id'])
                     self.logger.info('translate found %s %s' % (eid,data['retweet_id']))
                     if eid:
-                        event = self.api.get(eid)
+                        event = self.api.get(int(eid))
                     else:
                         res = self.api.search(values=data['retweet_id'], type_attribute='twitter-id')
                         if res['response']:
@@ -55,7 +55,7 @@ class MispImport:
                     self.logger.info('Tweet quoted %s' % data['quoted_tweet'])
                     eid = self.caching.translate(data['quoted_status_id'])
                     if eid:
-                        event = self.api.get(eid)
+                        event = self.api.get(int(eid))
                     else:
                         res = self.api.search(values=data['quoted_status_id'], type_attribute='twitter-id')
                         if res['response']:
