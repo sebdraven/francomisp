@@ -33,6 +33,9 @@ class MispImport:
                         res = self.api.search(values=data['retweet_id'])
                         if res['response']:
                             event = res['response'][0]
+                        else:
+                            self.logger.error('Event not found tweet %s ' % data['retweet_id'])
+                            continue
 
                     if 'Event' in event:
 
@@ -64,6 +67,7 @@ class MispImport:
                                 continue
                         else:
                             self.logger.error('Quoted Tweet not found %s' % data['url_tweet'])
+                            continue
                 else:
                     event = self.api.new_event(distribution=0, info=data['url_tweet'], analysis=0, threat_level_id=1)
                     self.caching.caching(k, event['Event']['id'])
