@@ -24,8 +24,8 @@ class MispImport:
             if not self.is_already_present(data['url_tweet']):
 
                 if data['retweet']:
-                    self.logger.info('RT %s ' % data['retweet_id'] )
-                    eid = self.caching.translate(data['retweet_id'])
+                    self.logger.info('RT %s %s ' % (data['retweet_id'],data['url_tweet']))
+                    eid = self.caching.translate(data['r(etweet_id'])
                     self.logger.info('translate found %s %s' % (eid,data['retweet_id']))
                     if eid:
                         event = self.api.get(int(eid))
