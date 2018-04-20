@@ -9,5 +9,5 @@ class Caching:
     def translate(self,tweet_id):
         return self.red.get(tweet_id)
 
-    def caching(self,tweet_id, eid):
+    def caching(self, tweet_id, eid):
         self.red.set(tweet_id, eid)
