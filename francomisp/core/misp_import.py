@@ -24,7 +24,7 @@ class MispImport:
             if not self.is_already_present(data['url_tweet']):
 
                 if data['retweet']:
-
+                    self.logger.info('RT %s ' % data['retweet_id'] )
                     eid = self.caching.translate(data['retweet_id'])
 
                     if eid:
@@ -34,8 +34,9 @@ class MispImport:
                         if res['response']:
                             event = res['response'][0]
 
-
                     if 'Event' in event:
+
+                        self.logger.info('Event has found %s' % event['Event']['id'] )
                         self.caching.caching(data['retweet_id'], event['Event']['id'])
                         self.api.add_named_attribute(event=event, type_value='url', category='External analysis', value=data['url_tweet'])
                         self.api.add_named_attribute(event=event, type_value="twitter-id", category="Social network",
@@ -48,6 +49,7 @@ class MispImport:
                     continue
 
                 elif data['quoted_tweet']:
+                    self.logger.info('Tweet quoted %s' % data['quoted_tweet'])
                     eid = self.caching.translate(data['quoted_status_id'])
                     if eid:
                         event = self.api.get(eid)
@@ -55,11 +57,14 @@ class MispImport:
                         res = self.api.search(values=data['quoted_status_id'])
                         if res['response']:
                             event = res['response'][0]
-                            self.caching.caching(data['quoted_status_id'], event['Event']['id'])
+                            if 'Event' in event:
+                                self.caching.caching(data['quoted_status_id'], event['Event']['id'])
+                            else:
+                                self.logger.error('Event not found tweet %s ' % data['retweet_id'])
+                                continue
                 else:
                     event = self.api.new_event(distribution=0, info=data['url_tweet'], analysis=0, threat_level_id=1)
                     self.caching.caching(k, event['Event']['id'])
-
 
                 self.logger.info('Event create %s' % event['Event']['id'])
 
