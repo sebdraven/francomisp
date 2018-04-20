@@ -30,7 +30,7 @@ class MispImport:
                     if eid:
                         event = self.api.get(eid)
                     else:
-                        res = self.api.search(values=data['retweet_id'])
+                        res = self.api.search(values=data['retweet_id'], type_attribute='twitter-id')
                         if res['response']:
                             event = res['response'][0]
                         else:
@@ -57,7 +57,7 @@ class MispImport:
                     if eid:
                         event = self.api.get(eid)
                     else:
-                        res = self.api.search(values=data['quoted_status_id'])
+                        res = self.api.search(values=data['quoted_status_id'], type_attribute='twitter-id')
                         if res['response']:
                             event = res['response'][0]
                             if 'Event' in event:
