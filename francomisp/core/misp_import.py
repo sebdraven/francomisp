@@ -142,7 +142,7 @@ class MispImport:
             self.api.tag(event['Event']['uuid'],t)
         self.api.tag(event['Event']['uuid'], 'OSINT')
         self.api.tag(event['Event']['uuid'], 'tlp:white')
-        self.api.tag(event['Event']['uuid'], 'toqualify')
+        self.api.tag(event['Event']['uuid'], 'toenrich')
 
     def __remove_shortcut(self, event):
         self.logger.debug('delete attr function')
