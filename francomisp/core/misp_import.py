@@ -45,7 +45,7 @@ class MispImport:
                         self.api.add_named_attribute(event=event, type_value="twitter-id", category="Social network",
                                                  value=k)
                         all_tags = [t['name'] for t in event['Event']['Tag']]
-                        if not 'toqualify' in all_tags:
+                        if not 'toqualify' in all_tags and not 'toenrich' in all_tags:
                             self.api.tag(event['Event']['uuid'], 'topublish')
                     else:
                         self.logger.error('Event not found tweet %s error decode %s' % (data['retweet_id'],event))
