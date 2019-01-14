@@ -124,7 +124,7 @@ class MispImport:
 
     def is_already_present(self, url_tweet):
         try:
-            response = self.api.search(values=[url_tweet])
+            response = self.api.search(values=[url_tweet], type_value='url', category='External analysis')
             self.response = response
             return bool(response['response'])
         except:
